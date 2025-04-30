@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import { corsConfig } from './middlewares/security';
 import { globalRateLimit } from './middlewares/rateLimit';
 import { errorHandler } from './middlewares/error';
+import authRoutes from './routes/auth';
 
 const app: Express = express();
 
@@ -30,6 +31,9 @@ app.use(
 app.get('/', (req: Request, res: Response) => {
   res.send('<h1>Mastering Express.js!</h1>');
 });
+
+// ** Auth Routes
+app.use('/api/v1/auth', authRoutes);
 
 // ** Global error handler
 app.use(errorHandler);
