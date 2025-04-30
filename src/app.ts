@@ -2,6 +2,7 @@ import express, { Request, Express, Response } from 'express';
 import helmet from 'helmet';
 import { corsConfig } from './middlewares/security';
 import { globalRateLimit } from './middlewares/rateLimit';
+import { errorHandler } from './middlewares/error';
 
 const app: Express = express();
 
@@ -29,5 +30,8 @@ app.use(
 app.get('/', (req: Request, res: Response) => {
   res.send('<h1>Mastering Express.js!</h1>');
 });
+
+// ** Global error handler
+app.use(errorHandler);
 
 export default app;
