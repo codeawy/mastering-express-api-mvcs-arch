@@ -18,6 +18,12 @@ app.use(
     limit: '10kb', // 10 KB
   }),
 );
+app.use(
+  express.urlencoded({
+    limit: '10kb', // 10 KB
+    extended: true,
+  }),
+);
 
 // * Routes
 app.get('/', (req: Request, res: Response) => {
