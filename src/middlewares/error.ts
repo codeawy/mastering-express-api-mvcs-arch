@@ -1,4 +1,4 @@
-import { ErrorRequestHandler, Request, Response } from 'express';
+import { ErrorRequestHandler, NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import { AppError } from '~/utils/appError';
 
@@ -10,7 +10,7 @@ export const errorHandler: ErrorRequestHandler = (
   err: Error | AppError | ZodError,
   req: Request,
   res: Response,
-  // next: NextFunction,
+  next: NextFunction,
 ): void => {
   // Handle Zod validation errors
   if (err.name === 'ZodError' && 'errors' in err) {
@@ -53,4 +53,5 @@ export const errorHandler: ErrorRequestHandler = (
     ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
     timestamp: new Date(),
   });
+  next();
 };
