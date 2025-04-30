@@ -12,6 +12,13 @@ app.use(corsConfig);
 // * Rate Limiting
 app.use(globalRateLimit);
 
+// * Body parsing middlewares
+app.use(
+  express.json({
+    limit: '10kb', // 10 KB
+  }),
+);
+
 // * Routes
 app.get('/', (req: Request, res: Response) => {
   res.send('<h1>Mastering Express.js!</h1>');
