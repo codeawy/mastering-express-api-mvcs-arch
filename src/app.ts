@@ -1,6 +1,7 @@
 import express, { Request, Express, Response } from 'express';
 import helmet from 'helmet';
 import { corsConfig } from './middlewares/security';
+import { globalRateLimit } from './middlewares/rateLimit';
 
 const app: Express = express();
 
@@ -8,7 +9,11 @@ const app: Express = express();
 app.use(helmet());
 app.use(corsConfig);
 
-app.use('/', (req: Request, res: Response) => {
+// * Rate Limiting
+app.use(globalRateLimit);
+
+// * Routes
+app.get('/', (req: Request, res: Response) => {
   res.send('<h1>Mastering Express.js!</h1>');
 });
 
