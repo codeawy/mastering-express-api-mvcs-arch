@@ -4,6 +4,11 @@ import { ZodSchema, z } from 'zod';
 // Define a type for the sources we can validate
 type ValidationSource = 'body' | 'query' | 'params';
 
+// Define a type for custom error messages
+interface ErrorWithMessage {
+  message: string;
+}
+
 /**
  * Middleware to validate request data using Zod schemas
  * Validates request body, query parameters, or URL parameters
@@ -33,7 +38,7 @@ export const validate = (schema: ZodSchema, source: ValidationSource = 'body'): 
         const errors = error.errors.map((err) => {
           // Handle empty path arrays (which happen when the entire body is missing)
           const fieldPath = err.path.length > 0 ? err.path.join('.') : '';
-
+          
           // If we have an empty field but the error is about a required field
           if (!fieldPath && err.code === 'invalid_type' && err.message.includes('Required')) {
             // This is likely a case where the entire body is missing or fields are missing
@@ -47,49 +52,53 @@ export const validate = (schema: ZodSchema, source: ValidationSource = 'body'): 
                   // Check if the field has a required_error message
                   const fieldDef = fieldSchema as z.ZodTypeAny;
                   let errorMessage = 'Required';
-
+                  
                   // Try to extract custom error message if available
                   if (fieldDef._def?.errorMap) {
                     const customError = fieldDef._def.errorMap(
                       { code: 'invalid_type', expected: 'string', received: 'undefined' },
-                      { data: undefined, defaultError: 'Required' },
+                      { data: undefined, defaultError: 'Required' }
                     );
                     if (customError) {
-                      errorMessage = customError;
+                      // Extract the message string if it's an object
+                      errorMessage = typeof customError === 'string' 
+                        ? customError 
+                        : (customError as ErrorWithMessage).message || 'Required';
                     }
                   }
-
+                  
                   return {
                     field: key,
-                    errorMessage,
+                    message: errorMessage,
                   };
                 });
               }
             } catch {
               // If we can't extract schema information, fall back to the original error
-              return {
-                field: fieldPath,
-                errorMessage: err.message,
-              };
             }
           }
-
+          
+          // Extract the message string if it's an object with a message property
+          let errorMessage = err.message;
+          
+          // Check if the error message is an object with a message property
+          if (typeof errorMessage === 'object' && errorMessage !== null && 'message' in errorMessage) {
+            errorMessage = (errorMessage as ErrorWithMessage).message;
+          }
+          
           return {
             field: fieldPath,
-            errorMessage: err.message,
+            message: errorMessage,
           };
         });
-
+        
         // Flatten the array in case we generated multiple errors for missing fields
         const flattenedErrors = errors.flat();
 
         res.status(400).json({
           status: 'error',
           message: 'Validation failed',
-          errors:
-            flattenedErrors.length > 0
-              ? flattenedErrors
-              : [{ field: 'unknown', errorMessage: 'Validation error occurred' }],
+          errors: flattenedErrors,
         });
         return;
       }
