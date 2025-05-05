@@ -9,18 +9,12 @@ import { globalRateLimit } from '../middlewares/rateLimit';
  * @param app Express application instance
  */
 export function setupMiddleware(app: Express): void {
-  app.use(helmet());
-  app.use(corsConfig);
-  app.use(globalRateLimit);
-  app.use(
-    express.json({
-      limit: '10kb',
-    }),
-  );
-  app.use(
-    express.urlencoded({
-      limit: '10kb',
-      extended: true,
-    }),
-  );
+  // Security middleware - apply these before route handlers
+  app.use(helmet()); // Set security-related HTTP headers
+  app.use(corsConfig); // Custom CORS configuration
+  app.use(globalRateLimit); // API rate limiting
+
+  // Body parsing middleware
+  app.use(express.json({ limit: '10kb' })); // Limit body size to prevent abuse
+  app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 }

@@ -5,11 +5,16 @@ import { setupRoutes } from './config/routes.config';
 
 const app: Express = express();
 
+/**
+ * Bootstrap application
+ * Orchestrates the application startup in a clear, sequential manner
+ */
 async function bootstrap(): Promise<void> {
   try {
-    // 1. Setup middlewares
+    // 1. Set up all middleware (security, body parsing, etc.)
     setupMiddleware(app);
-    // 2. Setup routes and API
+
+    // 2. Set up all routes and API endpoints
     setupRoutes(app);
   } catch (error) {
     console.log('Failed to bootstrap applicaiton', error);
