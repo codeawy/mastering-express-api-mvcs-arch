@@ -1,41 +1,30 @@
-import express, { Request, Express, Response } from 'express';
-import helmet from 'helmet';
-import { corsConfig } from './middlewares/security';
-import { globalRateLimit } from './middlewares/rateLimit';
-import { errorHandler } from './middlewares/error';
-import authRoutes from './routes/auth';
+import express, { Express } from 'express';
+
+import { setupMiddleware } from './config/middleware.config';
+import { setupRoutes } from './config/routes.config';
 
 const app: Express = express();
 
-// * Security Middlewares
-app.use(helmet());
-app.use(corsConfig);
+/**
+ * Bootstrap application
+ * Orchestrates the application startup in a clear, sequential manner
+ */
+async function bootstrap(): Promise<void> {
+  try {
+    // 1. Set up all middleware (security, body parsing, etc.)
+    setupMiddleware(app);
 
-// * Rate Limiting
-app.use(globalRateLimit);
+    // 2. Set up all routes and API endpoints
+    setupRoutes(app);
+  } catch (error) {
+    console.log('Failed to bootstrap applicaiton', error);
+    process.exit(1);
+  }
+}
 
-// * Body parsing middlewares
-app.use(
-  express.json({
-    limit: '10kb', // 10 KB
-  }),
-);
-app.use(
-  express.urlencoded({
-    limit: '10kb', // 10 KB
-    extended: true,
-  }),
-);
-
-// * Routes
-app.get('/', (req: Request, res: Response) => {
-  res.send('<h1>Mastering Express.js!</h1>');
+bootstrap().catch((error) => {
+  console.log('Failed to bootstrap applicaiton', error);
+  process.exit(1);
 });
-
-// ** Auth Routes
-app.use('/api/v1/auth', authRoutes);
-
-// ** Global error handler
-app.use(errorHandler);
 
 export default app;
