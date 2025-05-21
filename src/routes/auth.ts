@@ -1,20 +1,11 @@
-import { Request, Response, Router } from 'express';
+import { Router } from 'express';
+import authController from '~/controllers/auth.controller';
 import { validate } from '~/middlewares/validation';
 import { registerSchema } from '~/schema/auth';
 import { asyncHandler } from '~/utils/asyncRouteHandler';
 
 const router: Router = Router();
 
-router.post(
-  '/register',
-  validate(registerSchema),
-  asyncHandler(async (req: Request, res: Response) => {
-    const { email } = await Promise.resolve(req.body);
-    res.send({
-      email,
-    });
-    return;
-  }),
-);
+router.post('/register', validate(registerSchema), asyncHandler(authController.register));
 
 export default router;

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * Schema for user registeration
+ * Schema for user registration
  */
 export const registerSchema = z.object({
   name: z

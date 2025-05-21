@@ -17,13 +17,13 @@ async function bootstrap(): Promise<void> {
     // 2. Set up all routes and API endpoints
     setupRoutes(app);
   } catch (error) {
-    console.log('Failed to bootstrap applicaiton', error);
+    console.log('Failed to bootstrap application', error);
     process.exit(1);
   }
 }
 
 bootstrap().catch((error) => {
-  console.log('Failed to bootstrap applicaiton', error);
+  console.log('Failed to bootstrap application', error);
   process.exit(1);
 });
 
