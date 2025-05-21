@@ -8,6 +8,7 @@ export function setupRoutes(app: Express): void {
     res.send('<h1>Mastering Express.js!</h1>');
   });
 
+  // TODO: Start rec with API versioning and validateApiVersion
   // Auth Routes
   app.use('/api/v1/auth', authRoutes);
 
